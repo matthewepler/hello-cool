@@ -1,0 +1,80 @@
+# NEXT_STEPS
+# - make basic React connections
+  # a page that lists all users
+    # has a subscription to all users w/ their status
+    # create a user
+      # run a function (server)
+    # a page that lists a user
+      # add a workplan
+      # a section that lists Workplans
+        # display actions
+        # add action
+          # display steps
+          # add steps
+      # change status
+        # runs a function if it's assistance
+      # a section that takes a string input for text
+        # adds to chat
+        # function checks for help string, changes status, runs function
+# - set up a subscription
+# - auth0 & routes
+
+enum USER_TYPE {
+  CLIENT,
+  COACH,
+  ADMIN,
+  SUPER_ADMIN
+}
+
+enum USER_STATUS {
+  WORKING,
+  NON_RESPONSIVE,
+  ASSISTANCE
+}
+
+type User @model {
+  id: ID! @isUnique
+  name: String!
+  phone: String
+  status: USER_STATUS @defaultValue(value: WORKING)
+  statusTimestamp: DateTime
+  userType: USER_TYPE
+  coach: User @relation(name: "UserCoach")
+  workplans: [Workplan!]! @relation(name: "UserWorkplans")
+  chat: Chat @relation(name: "UserChat")
+  # pre-populate Workplans with a blank workplan?
+}
+
+type Workplan @model {
+  id: ID! @isUnique
+  title: String!
+  client: User! @relation(name: "UserWorkplans")
+  actions: [Action!]! @relation(name: "WorkplanActions")
+}
+
+type Action @model {
+  id: ID! @isUnique
+  title: String!
+  description: String
+  workplan: Workplan! @relation(name: "WorkplanActions")
+  steps: [Step!]! @relation(name: "ActionSteps")
+}
+
+type Step @model {
+  id: ID! @isUnique
+  text: String!
+  action: Action @relation(name: "ActionSteps")
+  # resource...
+}
+
+type Chat @model {
+  id: ID! @isUnique
+  user: User! @relation(name: "UserChat")
+  messages: [Message!]! @relation(name: "ChatMessages")
+}
+
+type Message @model {
+  id: ID! @isUnique
+  text: String!
+  chat: Chat! @relation(name: "ChatMessages")
+}
